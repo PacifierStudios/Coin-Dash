@@ -1,33 +1,62 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://main.gd" type="Script" id=1]
 [ext_resource path="res://coin.tscn" type="PackedScene" id=2]
-[ext_resource path="res://assets/grass.png" type="Texture" id=3]
-[ext_resource path="res://player.tscn" type="PackedScene" id=4]
-[ext_resource path="res://HUD.tscn" type="PackedScene" id=5]
+[ext_resource path="res://powerup.tscn" type="PackedScene" id=3]
+[ext_resource path="res://assets/grass.png" type="Texture" id=4]
+[ext_resource path="res://player.tscn" type="PackedScene" id=5]
+[ext_resource path="res://HUD.tscn" type="PackedScene" id=6]
+[ext_resource path="res://assets/audio/Coin.wav" type="AudioStream" id=7]
+[ext_resource path="res://assets/audio/Hit.wav" type="AudioStream" id=8]
+[ext_resource path="res://assets/audio/Level.wav" type="AudioStream" id=9]
+[ext_resource path="res://assets/audio/Powerup.wav" type="AudioStream" id=10]
+[ext_resource path="res://Cactus.tscn" type="PackedScene" id=11]
 
 [node name="main" type="Node"]
 script = ExtResource( 1 )
 Coin = ExtResource( 2 )
+powerup = ExtResource( 3 )
 playtime = 5
 
 [node name="background" type="TextureRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-texture = ExtResource( 3 )
+texture = ExtResource( 4 )
 stretch_mode = 2
 
-[node name="player" parent="." instance=ExtResource( 4 )]
+[node name="player" parent="." instance=ExtResource( 5 )]
 
 [node name="CoinContainer" type="Node" parent="."]
 
 [node name="playerStart" type="Position2D" parent="."]
+visible = false
 position = Vector2( 240, 350 )
 
 [node name="gameTimer" type="Timer" parent="."]
 
-[node name="HUD" parent="." instance=ExtResource( 5 )]
+[node name="HUD" parent="." instance=ExtResource( 6 )]
+
+[node name="coinSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 7 )
+
+[node name="endSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 8 )
+
+[node name="levelSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 9 )
+
+[node name="powerupSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 10 )
+
+[node name="powerupTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="Cactus" parent="." groups=[
+"obstacles",
+] instance=ExtResource( 11 )]
+position = Vector2( 305.173, 226.89 )
 [connection signal="hurt" from="player" to="." method="_on_player_hurt"]
 [connection signal="pickup" from="player" to="." method="_on_player_pickup"]
 [connection signal="timeout" from="gameTimer" to="." method="_on_gameTimer_timeout"]
 [connection signal="start_game" from="HUD" to="." method="new_game"]
+[connection signal="timeout" from="powerupTimer" to="." method="_on_powerupTimer_timeout"]

@@ -1,6 +1,7 @@
 extends Node
 
 export (PackedScene) var Coin
+export (PackedScene) var powerup
 export (int) var playtime
 
 var level
@@ -14,12 +15,6 @@ func _ready():
     screensize = get_viewport().get_visible_rect().size
     $player.screensize = screensize
     $player.hide()
-    if score == null: 
-        score = 0
-    if time_left == null:
-        time_left = 0
-    $HUD.update_score(score)
-    $HUD.update_timer(time_left)
 
 func new_game():
     playing = true
@@ -30,8 +25,11 @@ func new_game():
     $player.show()
     $gameTimer.start()
     spawn_coins()
+    $HUD.update_score(score)
+    $HUD.update_timer(time_left)
 
 func spawn_coins():
+    $levelSound.play()
     for i in range(4 + level):
         var c = Coin.instance()
         $CoinContainer.add_child(c)
@@ -39,25 +37,36 @@ func spawn_coins():
         c.position = Vector2(rand_range(0, screensize.x), rand_range(0, screensize.y))
 
 func _process(delta):
+    print($CoinContainer.get_child_count())
     if playing and $CoinContainer.get_child_count() == 0:
         level +=1
         time_left +=5
         spawn_coins()
-
+        $powerupTimer.wait_time = rand_range(5, 10)
+        $powerupTimer.start()
+        
 func _on_gameTimer_timeout():
     time_left -= 1
     $HUD.update_timer(time_left)
     if time_left <= 0:
         game_over()
 
-func _on_player_pickup():
-    score += 1
-    $HUD.update_score(score)
+func _on_player_pickup(type):
+    match type:
+        "coin":
+            score += 1
+            $coinSound.play()
+            $HUD.update_score(score)
+        "powerup":
+            time_left += 5
+            $powerupSound.play()
+            $HUD.update_timer(time_left)
 
 func _on_player_hurt():
     game_over()
 
 func game_over():
+    $endSound.play()
     playing = false
     $gameTimer.stop()
     for coin in $CoinContainer.get_children():
@@ -65,3 +74,9 @@ func game_over():
     $HUD.show_game_over()
     $player.die()
 
+func _on_powerupTimer_timeout():
+    var p = powerup.instance()
+    add_child(p)
+    p.screensize = screensize
+    p.position=Vector2(rand_range(0, screensize.x), rand_range(0, screensize.y))
+    
