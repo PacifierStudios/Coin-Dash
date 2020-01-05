@@ -4,3 +4,4 @@ export.cfg
 export_presets.cfg
 .mono/
 data_*/
+debug.log
