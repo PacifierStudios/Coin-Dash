@@ -16,6 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="coin_dash"
+boot_splash/image="res://PacifierStudiosLogo.png"
 config/icon="res://icon.png"
 
 [display]
